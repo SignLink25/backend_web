@@ -1,4 +1,5 @@
 import { Media } from 'src/media/entities/media.entity';
+import { Word } from 'src/word/entities/word.entity';
 import {
   Column,
   CreateDateColumn,
@@ -13,19 +14,21 @@ export class Phonetic {
   id: string;
 
   @Column('text')
-  word: string;
-
-  @Column('text')
   ipa: string;
 
   @Column('text')
-  phonetic_spelling: string;
+  syllables: string;
 
   @ManyToOne(() => Media, (media) => media.phonetic, {
     onDelete: 'CASCADE',
     eager: true,
   })
   media: Media;
+
+  @ManyToOne(() => Word, (word) => word.phonetic, {
+    onDelete: 'CASCADE',
+  })
+  word: Word;
 
   @CreateDateColumn()
   createdAt: Date;

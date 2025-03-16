@@ -1,15 +1,16 @@
 import { IsString, IsUUID } from 'class-validator';
 import { Media } from 'src/media/entities/media.entity';
+import { Word } from 'src/word/entities/word.entity';
 
 export class CreatePhoneticDto {
-  @IsString()
-  word: string;
+  @IsUUID()
+  word: Word;
 
   @IsString()
   ipa: string;
 
   @IsString()
-  phonetic_spelling: string;
+  syllables: string;
 
   @IsUUID()
   media: Media;

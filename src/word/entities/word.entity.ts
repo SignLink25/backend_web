@@ -1,10 +1,72 @@
+import { Dictionary } from 'src/dictionary/entities/dictionary.entity';
+import { Media } from 'src/media/entities/media.entity';
+import { Phonetic } from 'src/phonetic/entities/phonetic.entity';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+@Entity('word')
 export class Word {
+  @PrimaryGeneratedColumn('uuid')
   id: string;
-  title: string;
-  description: string;
-  phonetic: string;
-  media: string;
+
+  @Column('text')
+  word: string;
+
+  @Column('text')
+  meaning: string;
+
+  @Column('text')
+  grammaticalClass: string;
+
+  @OneToMany(() => Phonetic, (phonetic) => phonetic.word, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  phonetic: Phonetic[];
+
+  @ManyToMany(() => Media, (media) => media.words)
+  @JoinTable({
+    name: 'word_media',
+    joinColumn: {
+      name: 'word_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'media_id',
+      referencedColumnName: 'id',
+    },
+  })
+  media: Media[];
+
+  @Column('text')
   language: string;
+
+  @Column('text')
   context: string;
-  synonyms: string;
+
+  @ManyToOne(() => Dictionary, (dictionary) => dictionary.words, {
+    onDelete: 'CASCADE',
+  })
+  dictionary: Dictionary;
+
+  @ManyToMany(() => Word, (word) => word.synonyms)
+  @JoinTable({
+    name: 'word_synonyms',
+    joinColumn: {
+      name: 'word_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'synonym_id',
+      referencedColumnName: 'id',
+    },
+  })
+  synonyms: Word[];
 }

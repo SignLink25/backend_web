@@ -1,6 +1,6 @@
-import { ModuleClass } from 'src/module/entities/module.entity';
+import { Lesson } from 'src/lesson/entities/lesson.entity';
+import { Media } from 'src/media/entities/media.entity';
 import { Progress } from 'src/progress/entities/progress.entity';
-import { Task } from 'src/task/entities/task.entity';
 import {
   Column,
   CreateDateColumn,
@@ -11,35 +11,39 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('lesson')
-export class Lesson {
+@Entity('task')
+export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('text')
-  title: string;
+  question: string;
 
   @Column('text')
-  unity: string;
+  correctAnswer: string;
 
   @Column('text')
-  icon: string;
+  questionType: string;
 
-  @ManyToOne(() => ModuleClass, (module) => module.lessons, {
+  @Column('text', { array: true })
+  options: string[];
+
+  @ManyToOne(() => Lesson, (lesson) => lesson.tasks, {
     onDelete: 'CASCADE',
     eager: true,
   })
-  module: ModuleClass;
+  lesson: Lesson;
 
-  @OneToMany(() => Task, (task) => task.lesson, {
+  @ManyToOne(() => Media, (media) => media.tasks, {
     onDelete: 'CASCADE',
+    eager: true,
   })
-  tasks: Task[];
+  media: Media;
 
   @OneToMany(() => Progress, (progress) => progress.task, {
     onDelete: 'CASCADE',
   })
-  progress: Task[];
+  progress: Progress[];
 
   @CreateDateColumn()
   createdAt: Date;

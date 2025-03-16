@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { PhoneticService } from './phonetic.service';
 import { CreatePhoneticDto } from './dto/create-phonetic.dto';
 import { UpdatePhoneticDto } from './dto/update-phonetic.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('phonetic')
 export class PhoneticController {
@@ -13,22 +24,25 @@ export class PhoneticController {
   }
 
   @Get()
-  findAll() {
-    return this.phoneticService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.phoneticService.findAll(paginationDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.phoneticService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.phoneticService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePhoneticDto: UpdatePhoneticDto) {
-    return this.phoneticService.update(+id, updatePhoneticDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatePhoneticDto: UpdatePhoneticDto,
+  ) {
+    return this.phoneticService.update(id, updatePhoneticDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.phoneticService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.phoneticService.remove(id);
   }
 }

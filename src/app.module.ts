@@ -13,6 +13,7 @@ import { LanguageModule } from './language/language.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { WordModule } from './word/word.module';
 import { PhoneticModule } from './phonetic/phonetic.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PhoneticModule } from './phonetic/phonetic.module';
     DictionaryModule,
     WordModule,
     PhoneticModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],

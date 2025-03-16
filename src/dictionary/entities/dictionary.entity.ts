@@ -1,5 +1,12 @@
 import { Language } from 'src/language/entities/language.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Word } from 'src/word/entities/word.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('dictionary')
 export class Dictionary {
@@ -14,4 +21,10 @@ export class Dictionary {
     eager: true,
   })
   language: Language;
+
+  @OneToMany(() => Word, (word) => word.dictionary, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
+  words: Word[];
 }
