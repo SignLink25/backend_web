@@ -5,12 +5,17 @@ import {
   IsOptional,
   IsEnum,
   IsUUID,
+  MinLength,
+  MaxLength,
+  Matches,
 } from 'class-validator';
 import { Roles } from 'src/common/enum/roles.enum';
 
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(30)
   username: string;
 
   @IsEmail()
@@ -18,12 +23,16 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
-  @IsNotEmpty()
-  password: string; // Se recomienda encriptarla antes de guardarla en la base de datos
+  @MinLength(6)
+  @MaxLength(20)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'password too weak',
+  })
+  password: string;
 
   @IsEnum(Roles)
   @IsOptional()
-  role?: Roles; // Si no se envía, se usará el valor por defecto en la entidad
+  role?: Roles;
 
   @IsString()
   @IsOptional()
@@ -34,8 +43,8 @@ export class CreateUserDto {
   whyLearn?: string;
 
   @IsString()
-  @IsNotEmpty()
-  level: string;
+  @IsOptional()
+  level?: string;
 
   @IsUUID('4')
   @IsOptional()

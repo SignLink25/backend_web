@@ -4,10 +4,19 @@ import {
   Body,
   Get,
   Param,
-  UnauthorizedException,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from './decorators/get-user.decorator';
+import { User } from './entities/user.entity';
+import { RoleProtected } from './decorators/role-protected.decorator';
+import { Roles } from 'src/common/enum/roles.enum';
+import { UserRoleGuard } from './guards/user-role/user-role.guard';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -19,15 +28,15 @@ export class UsersController {
   }
 
   @Post('login')
-  async login(@Body('idToken') idToken: string) {
-    if (!idToken) {
-      throw new UnauthorizedException('Token de autenticación requerido');
-    }
-    return this.usersService.loginUser(idToken);
+  async login(@Body() loginUserDto: LoginUserDto) {
+    return this.usersService.loginUser(loginUserDto);
   }
 
-  @Get(':id')
-  async getUser(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  @Get()
+  @Auth(Roles.USER)
+  getUsers(@GetUser() user: User) {
+    return {
+      user,
+    };
   }
 }

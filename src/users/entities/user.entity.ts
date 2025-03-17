@@ -2,6 +2,8 @@ import { Roles } from 'src/common/enum/roles.enum';
 import { Media } from 'src/media/entities/media.entity';
 import { Progress } from 'src/progress/entities/progress.entity';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -22,7 +24,7 @@ export class User {
   @Column('text')
   email: string;
 
-  @Column('text')
+  @Column('text', { select: false })
   password: string;
 
   @Column({ type: 'enum', enum: Roles, default: Roles.USER })
@@ -34,7 +36,7 @@ export class User {
   @Column('text', { nullable: true })
   whyLearn: string;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   level: string;
 
   @ManyToOne(() => Media, (media) => media.user, {
@@ -48,9 +50,22 @@ export class User {
   })
   progress: Progress[];
 
+  @Column('boolean', { default: true })
+  isActive: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  checkEmail() {
+    this.email = this.email.toLowerCase().trim();
+  }
+
+  @BeforeUpdate()
+  checkEmailUpdate() {
+    this.email = this.email.toLowerCase().trim();
+  }
 }

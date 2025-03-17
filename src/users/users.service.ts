@@ -9,54 +9,70 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as admin from 'firebase-admin';
 import * as bcrypt from 'bcrypt';
+import { LoginUserDto } from './dto/login-user.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async registerUser(createUserDto: CreateUserDto) {
-    const { email, password, username, level } = createUserDto;
+    const { email, password, username, ...userData } = createUserDto;
 
     try {
-      // Crear usuario en Firebase Authentication
       const userRecord = await admin.auth().createUser({
         email,
         password,
         displayName: username,
       });
 
+      console.log(userRecord);
+
       const newUser = this.userRepository.create({
-        id: userRecord.uid, // Ahora usamos el UID de Firebase como ID
+        id: userRecord.uid,
         username,
         email,
-        password: bcrypt.hashSync(password, 10), // No almacenamos la contraseña
-        level,
+        password: bcrypt.hashSync(password, 10),
+        ...userData,
       });
 
-      return await this.userRepository.save(newUser);
+      await this.userRepository.save(newUser);
+
+      delete newUser.password;
+
+      return { ...newUser, token: this.getJwtToken({ id: newUser.id }) };
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
   }
 
-  async loginUser(idToken: string) {
+  async loginUser(loginUserDto: LoginUserDto) {
     try {
-      // Verificar el token de Firebase
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const { password, email } = loginUserDto;
+
       const user = await this.userRepository.findOne({
-        where: { id: decodedToken.uid }, // Ahora buscamos por el UID de Firebase
+        where: { email },
+        select: { email: true, password: true, id: true },
       });
 
       if (!user) {
-        throw new NotFoundException(
-          'Usuario no encontrado en la base de datos',
-        );
+        throw new NotFoundException('Error at login');
       }
 
-      return { message: 'Inicio de sesión exitoso', user };
+      if (!bcrypt.compareSync(password, user.password)) {
+        throw new UnauthorizedException('Error at login');
+      }
+
+      await admin.auth().setCustomUserClaims(user.id, {
+        lastLogin: new Date().toISOString(),
+      });
+
+      return { ...user, token: this.getJwtToken({ id: user.id }) };
     } catch (error) {
       throw new UnauthorizedException('Token inválido o expirado');
     }
@@ -70,5 +86,9 @@ export class UsersService {
     }
 
     return user;
+  }
+  private getJwtToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 }
