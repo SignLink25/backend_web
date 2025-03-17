@@ -13,3 +13,35 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+
+  nest-app:
+    container_name: nest_app
+    image: node:20.3.1
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - ${PORT}:4001
+    command: sh -c "npm install && npm run start:dev"
+    environment:
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - NODE_ENV=development
+      - DB_HOST=orders-db
+      - TYPE=${TYPE}
+      - PROJECT_ID=${PROJECT_ID}
+      - PRIVATE_KEY_ID=${PRIVATE_KEY_ID}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - CLIENT_EMAIL=${CLIENT_EMAIL}
+      - CLIENT_ID=${CLIENT_ID}
+      - AUTH_URI=${AUTH_URI}
+      - TOKEN_URI=${TOKEN_URI}
+      - AUTH_CERT_URL=${AUTH_CERT_URL}
+      - CLIENT_CERT_URL=${CLIENT_CERT_URL}
+      - UNIVERSAL_DOMAIN=${UNIVERSAL_DOMAIN}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - orders-db
