@@ -9,6 +9,7 @@ import {
   MaxLength,
   Matches,
 } from 'class-validator';
+import { number } from 'joi';
 import { Roles } from 'src/common/enum/roles.enum';
 
 export class CreateUserDto {
@@ -30,9 +31,9 @@ export class CreateUserDto {
   })
   password: string;
 
-  @IsEnum(Roles)
+  @IsString()
   @IsOptional()
-  role?: Roles;
+  number?: string;
 
   @IsString()
   @IsOptional()
@@ -48,5 +49,5 @@ export class CreateUserDto {
 
   @IsUUID('4')
   @IsOptional()
-  mediaId?: string; // Relación con Media (opcional)
+  mediaId?: string;
 }

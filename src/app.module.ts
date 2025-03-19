@@ -14,6 +14,7 @@ import { DictionaryModule } from './dictionary/dictionary.module';
 import { WordModule } from './word/word.module';
 import { PhoneticModule } from './phonetic/phonetic.module';
 import { TaskModule } from './task/task.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { TaskModule } from './task/task.module';
     WordModule,
     PhoneticModule,
     TaskModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

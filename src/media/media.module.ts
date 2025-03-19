@@ -7,6 +7,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { extname, join } from 'path';
 import { diskStorage } from 'multer';
+import { envs } from 'src/config/envs';
 
 @Module({
   controllers: [MediaController],
@@ -26,14 +27,15 @@ import { diskStorage } from 'multer';
         },
       }),
       fileFilter: (req, file, cb) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-          return cb(new Error('Only image files are allowed!'), false);
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|mp4|mp3)$/)) {
+          return cb(new Error('Only media are allowed!'), false);
         }
         cb(null, true);
       },
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: `${envs.prefix}/uploads`,
     }),
   ],
 })

@@ -8,16 +8,18 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Elimina propiedades no definidas en el DTO
-      forbidNonWhitelisted: true, // Genera error si hay propiedades no permitidas
-      transform: true, // Convierte los datos a instancias de la clase DTO
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
+
+  app.setGlobalPrefix(envs.prefix);
 
   const logger = new Logger('Bootstrap');
 
   await app.listen(envs.port);
 
-  logger.log(`>> Application run in http://localhost:${envs.port}`);
+  logger.log(`>> Application run in ${envs.server_url}${envs.prefix}`);
 }
 bootstrap();

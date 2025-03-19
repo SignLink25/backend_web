@@ -12,6 +12,8 @@ import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
@@ -19,29 +21,51 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async registerUser(createUserDto: CreateUserDto) {
     const { email, password, username, ...userData } = createUserDto;
 
     try {
-      const userRecord = await admin.auth().createUser({
-        email,
-        password,
-        displayName: username,
+      const userExists = await this.userRepository.findOne({
+        where: { email },
       });
 
-      console.log(userRecord);
+      if (userExists && userExists.isVerified === true) {
+        throw new UnauthorizedException('Usuario ya existe');
+      }
 
-      const newUser = this.userRepository.create({
-        id: userRecord.uid,
-        username,
-        email,
-        password: bcrypt.hashSync(password, 10),
-        ...userData,
-      });
+      const verificationCode = Math.floor(
+        1000 + Math.random() * 9000,
+      ).toString();
+      const verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // Expira en 5 min
 
-      await this.userRepository.save(newUser);
+      let newUser;
+
+      if (userExists && userExists.isVerified === false) {
+        await this.userRepository.update(userExists.id, {
+          token: verificationCode,
+          expirationToken: verificationExpires.toISOString(),
+          ...userData,
+        });
+        newUser = await this.userRepository.findOne({
+          where: { id: userExists.id },
+        });
+      } else {
+        newUser = this.userRepository.create({
+          username,
+          email,
+          password: bcrypt.hashSync(password, 10),
+          isVerified: false,
+          token: verificationCode,
+          expirationToken: verificationExpires.toISOString(),
+          ...userData,
+        });
+        await this.userRepository.save(newUser);
+      }
+
+      await this.mailService.sendUserConfirmation(newUser);
 
       delete newUser.password;
 
@@ -49,6 +73,28 @@ export class UsersService {
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
+  }
+
+  async verifyUser(token: string) {
+    const user = await this.userRepository.findOne({
+      where: { token },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (new Date(user.expirationToken) < new Date()) {
+      throw new UnauthorizedException('Token expirado');
+    }
+
+    user.isVerified = true;
+    user.token = null;
+    user.expirationToken = null;
+
+    await this.userRepository.save(user);
+
+    return user;
   }
 
   async loginUser(loginUserDto: LoginUserDto) {
@@ -87,8 +133,18 @@ export class UsersService {
 
     return user;
   }
+
+  async updateUser(user: User, updateUserDto: UpdateUserDto) {
+    const { id } = user;
+
+    await this.userRepository.update(id, updateUserDto);
+
+    return await this.findOne(id);
+  }
+
   private getJwtToken(payload: JwtPayload) {
     const token = this.jwtService.sign(payload);
+
     return token;
   }
 }

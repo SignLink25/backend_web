@@ -20,6 +20,10 @@ interface EnvVars {
   DB_NAME: string;
   DB_PORT: number;
   JWT_SECRET: string;
+  SERVER_URL: string;
+  PREFIX: string;
+  EMAIL: string;
+  PASS_EMAIL: string;
 }
 
 const envsSchema = joi
@@ -42,6 +46,10 @@ const envsSchema = joi
     DB_PASSWORD: joi.string().required(),
     DB_NAME: joi.string().required(),
     JWT_SECRET: joi.string().required(),
+    SERVER_URL: joi.string().required(),
+    PREFIX: joi.string().required(),
+    EMAIL: joi.string().required(),
+    PASS_EMAIL: joi.string().required(),
   })
   .unknown(true);
 
@@ -72,4 +80,8 @@ export const envs = {
   db_password: envVars.DB_PASSWORD,
   db_name: envVars.DB_NAME,
   jwt_secret: envVars.JWT_SECRET,
+  server_url: envVars.SERVER_URL,
+  prefix: envVars.PREFIX,
+  email: envVars.EMAIL,
+  pass_email: envVars.PASS_EMAIL,
 };

@@ -6,6 +6,7 @@ import {
   Param,
   UseGuards,
   Req,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,6 +18,7 @@ import { RoleProtected } from './decorators/role-protected.decorator';
 import { Roles } from 'src/common/enum/roles.enum';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import { Auth } from './decorators/auth.decorator';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -25,6 +27,11 @@ export class UsersController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return this.usersService.registerUser(createUserDto);
+  }
+
+  @Post('verify/:token')
+  async verifyUser(@Param('token') token: string) {
+    return this.usersService.verifyUser(token);
   }
 
   @Post('login')
@@ -38,5 +45,11 @@ export class UsersController {
     return {
       user,
     };
+  }
+
+  @Patch('update')
+  @Auth(Roles.USER)
+  updateUser(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateUser(user, updateUserDto);
   }
 }

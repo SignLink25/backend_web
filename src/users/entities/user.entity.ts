@@ -16,16 +16,20 @@ import {
 
 @Entity('users')
 export class User {
-  @PrimaryColumn('text')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
+
   @Column('text')
   username: string;
 
-  @Column('text')
+  @Column('text', { unique: true })
   email: string;
 
   @Column('text', { select: false })
   password: string;
+
+  @Column('text', { nullable: true })
+  number: string;
 
   @Column({ type: 'enum', enum: Roles, default: Roles.USER })
   role: Roles;
@@ -52,6 +56,15 @@ export class User {
 
   @Column('boolean', { default: true })
   isActive: boolean;
+
+  @Column('boolean', { default: false })
+  isVerified: boolean;
+
+  @Column('text', { nullable: true })
+  token: string;
+
+  @Column('text', { nullable: true })
+  expirationToken: string;
 
   @CreateDateColumn()
   createdAt: Date;

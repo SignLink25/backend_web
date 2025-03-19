@@ -46,10 +46,19 @@ export class Word {
   media: Media[];
 
   @Column('text')
-  language: string;
+  explanation_language: string;
 
   @Column('text')
-  context: string;
+  sign_language: string;
+
+  @Column('text', { array: true })
+  syllables: string[];
+
+  @Column('text')
+  ipa: string;
+
+  @Column('text')
+  exemplo: string;
 
   @ManyToOne(() => Dictionary, (dictionary) => dictionary.words, {
     onDelete: 'CASCADE',

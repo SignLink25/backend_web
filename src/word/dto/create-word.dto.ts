@@ -32,11 +32,27 @@ export class CreateWordDto {
 
   @IsString()
   @IsNotEmpty()
-  language: string;
+  explanation_language: string;
+
+  @IsString()
+  @IsNotEmpty()
+  sign_language: string;
+
+  @IsArray()
+  @IsOptional()
+  syllables: string[];
 
   @IsString()
   @IsOptional()
   context?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  ipa: string;
+
+  @IsString()
+  @IsNotEmpty()
+  exemplo: string;
 
   @IsUUID('4')
   @IsNotEmpty()

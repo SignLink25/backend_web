@@ -8,13 +8,14 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { envs } from 'src/config/envs';
 import { JwtStrategy } from './strategies/jwt.strategies';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService, JwtStrategy],
   imports: [
     TypeOrmModule.forFeature([User]),
-    FirebaseModule, // Importamos el módulo de Firebase
+    FirebaseModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [],
@@ -24,6 +25,7 @@ import { JwtStrategy } from './strategies/jwt.strategies';
         signOptions: { expiresIn: '1y' },
       }),
     }),
+    MailModule,
   ],
   exports: [UsersService, JwtStrategy, PassportModule, JwtModule],
 })
