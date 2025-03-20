@@ -114,13 +114,9 @@ export class UsersService {
         throw new UnauthorizedException('Error at login');
       }
 
-      await admin.auth().setCustomUserClaims(user.id, {
-        lastLogin: new Date().toISOString(),
-      });
-
       return { ...user, token: this.getJwtToken({ id: user.id }) };
     } catch (error) {
-      throw new UnauthorizedException('Token inválido o expirado');
+      throw new Error(error.message);
     }
   }
 

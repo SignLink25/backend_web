@@ -6,6 +6,9 @@ COPY package.json ./
 COPY package-lock.json ./
 RUN npm install
 
+RUN mkdir -p dist/mail/templates
+COPY src/mail/templates/ dist/mail/templates/
+
 COPY . .
 
 RUN npm run build

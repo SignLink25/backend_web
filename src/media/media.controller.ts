@@ -37,7 +37,7 @@ export class MediaController {
 
     return this.mediaService.create(
       createMedioDto,
-      `http://localhost:${envs.port}/${file.filename}`,
+      `${envs.server_url}${envs.prefix}/uploads/${file.filename}`,
     );
   }
 
