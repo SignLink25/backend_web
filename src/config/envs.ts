@@ -1,5 +1,25 @@
 import 'dotenv/config';
 import * as joi from 'joi';
+import * as fs from 'fs';
+
+const privateKeyPath = process.env.FIREBASE_PRIVATE_KEY_FILE || '';
+let privateKey = '';
+
+if (privateKeyPath) {
+  try {
+    if (fs.existsSync(privateKeyPath)) {
+      privateKey = fs.readFileSync(privateKeyPath, 'utf8').trim(); // 📌 Leer el archivo y limpiar espacios extra
+    } else {
+      console.error(
+        `❌ Archivo de clave privada no encontrado en: ${privateKeyPath}`,
+      );
+    }
+  } catch (err) {
+    console.error(
+      `❌ Error al leer el archivo de clave privada: ${err.message}`,
+    );
+  }
+}
 
 interface EnvVars {
   TYPE: string;
@@ -31,7 +51,7 @@ const envsSchema = joi
     TYPE: joi.string().required(),
     PROJECT_ID: joi.string().required(),
     PRIVATE_KEY_ID: joi.string().required(),
-    PRIVATE_KEY: joi.string().required(),
+    PRIVATE_KEY: joi.string().default(privateKey),
     CLIENT_EMAIL: joi.string().required(),
     CLIENT_ID: joi.string().required(),
     AUTH_URI: joi.string().required(),
