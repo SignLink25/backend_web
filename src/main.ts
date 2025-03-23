@@ -14,6 +14,8 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors();
+
   app.setGlobalPrefix(envs.prefix);
 
   const logger = new Logger('Bootstrap');
