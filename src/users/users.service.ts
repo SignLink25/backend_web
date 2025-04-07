@@ -103,16 +103,23 @@ export class UsersService {
 
       const user = await this.userRepository.findOne({
         where: { email },
-        select: { email: true, password: true, id: true },
+        select: {
+          email: true,
+          password: true,
+          id: true,
+          isVerified: true,
+        },
       });
 
-      if (!user) {
+      if (!user || !user.isVerified) {
         throw new NotFoundException('Error at login');
       }
 
       if (!bcrypt.compareSync(password, user.password)) {
         throw new UnauthorizedException('Error at login');
       }
+
+      await this.userRepository.update(user.id, { isActive: true });
 
       return { ...user, token: this.getJwtToken({ id: user.id }) };
     } catch (error) {
@@ -142,5 +149,28 @@ export class UsersService {
     const token = this.jwtService.sign(payload);
 
     return token;
+  }
+
+  async deleteUser(user: User) {
+    try {
+      if (!user || !user.isVerified) {
+        throw new NotFoundException('Usuario no encontrado');
+      }
+
+      await this.mailService.sendUserDelete(user);
+
+      await this.userRepository.update(user.id, {
+        isActive: false,
+        deletionDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      });
+
+      return {
+        message:
+          'Usuario marcado para eliminación. Se eliminará permanentemente en 30 días si no vuelve a iniciar sesión.',
+        user,
+      };
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }

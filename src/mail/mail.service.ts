@@ -9,11 +9,22 @@ export class MailService {
   async sendUserConfirmation(user: User) {
     await this.mailerService.sendMail({
       to: user.email,
-      subject: 'Código de verificação SignLink',
+      subject: 'Verification Code SignLink',
       template: 'verificationCode',
       context: {
         name: user.username,
         token: user.token,
+      },
+    });
+  }
+
+  async sendUserDelete(user: User) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Account Deletion Notice',
+      template: 'delete',
+      context: {
+        name: user.username,
       },
     });
   }

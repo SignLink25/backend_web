@@ -66,6 +66,9 @@ export class User {
   @Column('text', { nullable: true })
   expirationToken: string;
 
+  @Column({ nullable: true })
+  deletionDate: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

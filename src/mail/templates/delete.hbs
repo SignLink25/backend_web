@@ -1,0 +1,49 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+  * {
+    font-family: Poppins, system-ui;
+    padding: 0px;
+    margin: 0px;
+  }
+</style>
+<div
+  class='container-content'
+  style='display: flex;align-items: center;justify-content: center;'
+>
+  <div
+    class='card'
+    style='border-radius: 10px;background-color: white;box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.08);text-align: center;padding: 40px 30px; width: auto;'
+  >
+    <div class='card-header' style='width:100%'>
+      <h1>
+        <strong>Account Deletion Notice</strong>
+      </h1>
+    </div>
+    <div class='card-body'>
+      <h2 class='my-3' style='margin: 30px 0px;'>Hello {{name}},</h2>
+      <p style='padding: 0px; margin: 0px;'>
+        We inform you that your account and all associated information will be
+        deleted in 30 days.
+      </p>
+      <p style='padding: 10px 0px; margin: 0px;'>
+        If you do not want your account to be deleted, simply log in again to
+        our platform.
+      </p>
+      <p style='padding: 20px 0px; margin: 0px;'>
+        <strong>Why are you receiving this message?</strong>
+      </p>
+      <p style='padding: 0px; margin: 0px;'>
+        You have requested the deletion of your account or there has been a long
+        period without activity.
+      </p>
+      <div
+        style='margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;'
+      >
+        <p style='color: #dc3545;'>
+          <strong>⚠️ This action will be irreversible after 30 days</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
