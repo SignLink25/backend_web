@@ -39,7 +39,7 @@ export class UsersService {
       const verificationCode = Math.floor(
         1000 + Math.random() * 9000,
       ).toString();
-      const verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // Expira en 5 min
+      const verificationExpires = new Date(Date.now() + 5 * 60 * 1000);
 
       let newUser;
 
@@ -69,7 +69,10 @@ export class UsersService {
 
       delete newUser.password;
 
-      return { ...newUser, token: this.getJwtToken({ id: newUser.id }) };
+      delete newUser.token;
+      delete newUser.expirationToken;
+
+      return { ...newUser };
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
@@ -94,7 +97,7 @@ export class UsersService {
 
     await this.userRepository.save(user);
 
-    return user;
+    return { ...user, jwtoken: this.getJwtToken({ id: user.id }) };
   }
 
   async loginUser(loginUserDto: LoginUserDto) {

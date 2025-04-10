@@ -2,7 +2,7 @@ version: '3'
 
 services:
   orders-db:
-    container_name: signlink_db
+    container_name: signlink_db_dev
     image: postgres:16.3
     restart: always
     volumes:
