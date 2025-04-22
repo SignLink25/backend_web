@@ -24,6 +24,7 @@ interface EnvVars {
   PREFIX: string;
   EMAIL: string;
   PASS_EMAIL: string;
+  URL_FRONTEND: string;
 }
 
 const envsSchema = joi
@@ -50,6 +51,7 @@ const envsSchema = joi
     PREFIX: joi.string().required(),
     EMAIL: joi.string().required(),
     PASS_EMAIL: joi.string().required(),
+    URL_FRONTEND: joi.string().required(),
   })
   .unknown(true);
 
@@ -84,4 +86,5 @@ export const envs = {
   prefix: envVars.PREFIX,
   email: envVars.EMAIL,
   pass_email: envVars.PASS_EMAIL,
+  url_frontend: envVars.URL_FRONTEND,
 };

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -14,12 +15,18 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { MailService } from 'src/mail/mail.service';
+import { ResetPassword } from './entities/reset-password.entity';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(ResetPassword)
+    private resetPasswordRepository: Repository<ResetPassword>,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
@@ -138,6 +145,92 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async sendMailReset(resetPasswordDto: ResetPasswordDto) {
+    const token = uuidv4();
+    try {
+      let showUser = await this.userRepository.findOne({
+        where: { email: resetPasswordDto.email },
+      });
+      if (!showUser) {
+        return {
+          message: 'Usuario no encontrado',
+        };
+      }
+
+      let user = await this.resetPasswordRepository.findOne({
+        where: { email: resetPasswordDto.email },
+      });
+
+      if (!user) {
+        const userCreate = this.resetPasswordRepository.create({
+          email: resetPasswordDto.email,
+          token: token,
+          dateValid: new Date(Date.now() + 15 * 60 * 1000),
+        });
+        await this.resetPasswordRepository.save(userCreate);
+        await this.mailService.sendResetPassword(userCreate);
+        return ['Mail sended'];
+      } else {
+        user.token = token;
+        user.dateValid = new Date(Date.now() + 15 * 60 * 1000);
+        await this.resetPasswordRepository.save(user);
+        await this.mailService.sendResetPassword(user);
+        return ['Mail sended'];
+      }
+    } catch (error) {
+      throw new BadRequestException('Error al enviar el correo electrónico');
+    }
+  }
+
+  async getResetPassword(token: string) {
+    try {
+      const user = await this.resetPasswordRepository.findOne({
+        where: { token },
+      });
+
+      if (!user || (user.dateValid && new Date(user.dateValid) < new Date())) {
+        throw new BadRequestException('Usuario no encontrado');
+      }
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<User> {
+    try {
+      const passUser = await this.resetPasswordRepository.findOne({
+        where: { token: changePasswordDto.token },
+      });
+
+      if (
+        !passUser ||
+        (passUser.dateValid && new Date(passUser.dateValid) < new Date())
+      ) {
+        throw new BadRequestException('Usuario no encontrado');
+      }
+
+      await this.resetPasswordRepository.delete(passUser);
+
+      // Buscar al usuario por su ID
+      const user = await this.userRepository.findOne({
+        where: { email: passUser.email },
+      });
+
+      const password = bcrypt.hashSync(changePasswordDto.newPassword, 10);
+
+      user.password = password;
+
+      await this.userRepository.save(user);
+
+      delete user.password;
+
+      return user;
+    } catch (error) {
+      throw new BadRequestException('Error al cambiar la contraseña');
+    }
   }
 
   async updateUser(user: User, updateUserDto: UpdateUserDto) {

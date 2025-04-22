@@ -9,12 +9,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { envs } from 'src/config/envs';
 import { JwtStrategy } from './strategies/jwt.strategies';
 import { MailModule } from 'src/mail/mail.module';
+import { ResetPassword } from './entities/reset-password.entity';
 
 @Module({
   controllers: [UsersController],
   providers: [UsersService, JwtStrategy],
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, ResetPassword]),
     FirebaseModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({

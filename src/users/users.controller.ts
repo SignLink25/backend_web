@@ -20,6 +20,8 @@ import { Roles } from 'src/common/enum/roles.enum';
 import { UserRoleGuard } from './guards/user-role/user-role.guard';
 import { Auth } from './decorators/auth.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -58,5 +60,21 @@ export class UsersController {
   @Auth(Roles.USER)
   deleteUser(@GetUser() user: User) {
     return this.usersService.deleteUser(user);
+  }
+
+  // Reset password
+  @Post('email/reset')
+  sendReset(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.usersService.sendMailReset(resetPasswordDto);
+  }
+
+  @Get('change/password/:id')
+  changePassword(@Param('id') id: string) {
+    return this.usersService.getResetPassword(id);
+  }
+
+  @Patch('change/password')
+  changePasswordUser(@Body() changePasswordDto: ChangePasswordDto) {
+    return this.usersService.changePassword(changePasswordDto);
   }
 }
